@@ -7,9 +7,185 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="/css/chat.css">
+    <style>
+        /* Mobile Sidebar Styles */
+        .sidebar-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 24px;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 998;
+        }
+
+        .chat-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 280px;
+            background: var(--bg-color);
+            border-right: 1px solid var(--border-color);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .chat-sidebar {
+                transform: translateX(-100%);
+                width: 100%;
+                max-width: 320px;
+            }
+
+            .chat-sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-toggle {
+                display: flex;
+            }
+
+            .sidebar-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .chat-main {
+                margin-left: 0 !important;
+            }
+
+            .mobile-navbar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 997;
+            }
+        }
+
+        /* User List Styles */
+        .users-list {
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            margin-bottom: 1px;
+            background: var(--message-bg);
+            transition: all 0.2s ease;
+            position: relative;
+            border-radius: 8px;
+        }
+
+        .user-item.clickable {
+            cursor: pointer;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--hover-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .user-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .user-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--secondary-text);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .online .status-dot {
+            background-color: #2ecc71;
+            box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+        }
+
+        .offline .status-dot {
+            background-color: #95a5a6;
+        }
+    </style>
 </head>
 <body>
     <div class="chat-container">
+        <!-- Mobile Navbar -->
+        <div class="mobile-navbar">
+            <div class="mobile-navbar-content">
+                <div class="mobile-navbar-left">
+                    <span class="mobile-navbar-back" id="mobileBackBtn">
+                        <i class="fas fa-chevron-left"></i>
+                    </span>
+                </div>
+                <div class="mobile-navbar-center">
+                    <h1 class="mobile-navbar-title" id="mobileRoomName">Room Name</h1>
+                </div>
+                <div class="mobile-navbar-right">
+                    <button class="nav-btn" id="mobileSidebarToggle">
+                        <i class="fas fa-users"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
         <div class="chat-sidebar">
             <div class="room-info">
                 <div class="room-header">
@@ -23,12 +199,15 @@
                 </button>
             </div>
             <div class="users-list">
-                <h3>Online Users</h3>
-                <ul id="usersList">
-                    <!-- Users will be added here dynamically -->
-                </ul>
+                <!-- Users will be added here dynamically -->
             </div>
         </div>
+
+        <!-- Sidebar Toggle Button and Overlay -->
+        <!-- <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-users"></i>
+        </button> -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
         <div class="chat-main">
             <div class="messages-container" id="messages">
@@ -49,13 +228,6 @@
                     </button>
                     <div id="emojiPicker" class="emoji-picker" style="display: none;">
                         <!-- Emojis will be loaded here -->
-                    </div>
-
-                    <div class="search-container">
-                        <input type="text" id="searchInput" placeholder="Search messages..." class="search-input">
-                        <button id="searchButton" class="search-btn">
-                            <i class="fas fa-search"></i>
-                        </button>
                     </div>
 
                     <input type="text" id="messageInput" placeholder="Type a message...">
@@ -100,5 +272,57 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="/js/chat.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('.chat-sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            const mobileSidebarToggle = document.querySelector('#mobileSidebarToggle');
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+            }
+
+            // Desktop toggle button
+            sidebarToggle?.addEventListener('click', toggleSidebar);
+
+            // Mobile navbar toggle button
+            mobileSidebarToggle?.addEventListener('click', toggleSidebar);
+
+            // Overlay click
+            overlay?.addEventListener('click', toggleSidebar);
+
+            // ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+                    toggleSidebar();
+                }
+            });
+
+            // Mobile back button
+            document.getElementById('mobileBackBtn').addEventListener('click', function() {
+                window.location.href = '/rooms';
+            });
+
+            // Sync room name
+            function updateMobileTitle() {
+                const roomName = document.getElementById('roomName').textContent;
+                document.getElementById('mobileRoomName').textContent = roomName;
+            }
+
+            // Initial sync
+            updateMobileTitle();
+
+            // Watch for changes
+            const observer = new MutationObserver(updateMobileTitle);
+            observer.observe(document.getElementById('roomName'), { 
+                childList: true,
+                characterData: true,
+                subtree: true
+            });
+        });
+    </script>
 </body>
 </html> 

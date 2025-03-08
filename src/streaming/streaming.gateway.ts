@@ -824,16 +824,29 @@ export class StreamingGateway
     @ConnectedSocket() client: Socket,
   ) {
     try {
+      console.log('Handling private message:', data);
+      
       const sender = await this.getUserFromToken(client);
       if (!sender) {
+        console.log('Unauthorized sender');
         throw new WsException('Unauthorized');
       }
 
+      console.log('Sender:', sender);
+
       // หา socket id ของผู้รับ
       const recipient = this.users.find(u => u.username === data.to);
+      console.log('Found recipient:', recipient);
+      
       if (!recipient) {
-        throw new WsException('User not found or offline');
+        console.log('Recipient not found:', data.to);
+        client.emit('privateMessageError', { message: 'User not found or offline' });
+        return;
       }
+
+      // ตรวจสอบว่าผู้รับออนไลน์อยู่หรือไม่
+      const isRecipientOnline = this.connectedSockets.has(recipient.id);
+      console.log('Recipient online status:', isRecipientOnline);
 
       const message: PrivateMessage = {
         type: 'private',
@@ -850,13 +863,32 @@ export class StreamingGateway
       }
       this.privateMessages[chatKey].push(message);
 
-      // ส่งข้อความไปยังผู้ส่งและผู้รับเท่านั้น
-      client.emit('privateMessage', message);
-      this.server.to(recipient.id).emit('privateMessage', message);
+      console.log('Sending private message to recipient:', recipient.id);
+      
+      // ส่งข้อความไปยังผู้ส่ง
+      client.emit('privateMessage', {
+        ...message,
+        isSent: true
+      });
+
+      // ส่งข้อความไปยังผู้รับ
+      this.server.to(recipient.id).emit('privateMessage', {
+        ...message,
+        isSent: false
+      });
+
+      // ส่งการแจ้งเตือนให้ผู้รับ
+      this.server.to(recipient.id).emit('notification', {
+        type: 'privateMessage',
+        from: sender.username,
+        message: 'New private message'
+      });
+
+      console.log('Private message sent successfully');
 
     } catch (error) {
       console.error('Error sending private message:', error);
-      client.emit('error', { message: error.message });
+      client.emit('privateMessageError', { message: error.message });
     }
   }
 
@@ -867,19 +899,31 @@ export class StreamingGateway
     @ConnectedSocket() client: Socket,
   ) {
     try {
+      console.log('Getting private messages with user:', data.withUser);
+      
       const user = await this.getUserFromToken(client);
       if (!user) {
+        console.log('Unauthorized user trying to get private messages');
         throw new WsException('Unauthorized');
       }
 
       const chatKey = [user.username, data.withUser].sort().join(':');
-      const messages = this.privateMessages[chatKey] || [];
+      console.log('Chat key:', chatKey);
       
-      client.emit('privateMessageHistory', messages);
+      const messages = this.privateMessages[chatKey] || [];
+      console.log('Found messages:', messages.length);
+
+      // ส่งข้อความกลับไปยังผู้ขอ
+      client.emit('privateMessageHistory', {
+        withUser: data.withUser,
+        messages: messages
+      });
+
+      console.log('Private message history sent successfully');
 
     } catch (error) {
       console.error('Error getting private messages:', error);
-      client.emit('error', { message: error.message });
+      client.emit('privateMessageError', { message: error.message });
     }
   }
 }
