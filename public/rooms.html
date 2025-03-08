@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Rooms</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        .rooms-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .rooms-header {
+            background: var(--card-bg);
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-left h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        #username {
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-color);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-theme {
+            background: var(--bg-color);
+            color: var(--text-color);
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-theme:hover {
+            background: var(--border-color);
+        }
+
+        .btn-logout {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-logout:hover {
+            background: var(--primary-dark);
+        }
+
+        .create-room {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .input-group {
+            display: flex;
+            flex: 1;
+            gap: 1rem;
+        }
+
+        #newRoomName {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.2s ease;
+        }
+
+        #newRoomName:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        #roomPassword {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.2s ease;
+        }
+
+        #roomPassword:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        #createRoomBtn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #createRoomBtn:hover {
+            background: var(--primary-dark);
+        }
+
+        .fa-lock {
+            color: var(--primary-color);
+            margin-left: 0.5rem;
+            font-size: 0.9em;
+        }
+
+        .rooms-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .room-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .room-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .room-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .room-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .room-name i {
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .room-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            background: var(--bg-color);
+            color: var(--text-secondary);
+        }
+
+        .room-status.active {
+            color: #059669;
+            background: #ecfdf5;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+        }
+
+        .room-status.active .status-dot {
+            background: #059669;
+        }
+
+        .room-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .user-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .user-count i {
+            color: var(--primary-color);
+        }
+
+        .join-room-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .join-room-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] .room-status.active {
+            background: rgba(5, 150, 105, 0.1);
+            color: #34d399;
+        }
+
+        [data-theme="dark"] .room-status.active .status-dot {
+            background: #34d399;
+        }
+
+        @media (max-width: 768px) {
+            .rooms-container {
+                padding: 1rem;
+            }
+
+            .rooms-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+                padding: 1.25rem;
+            }
+
+            .header-left {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .create-room {
+                flex-direction: column;
+                padding: 1.25rem;
+            }
+
+            #createRoomBtn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .room-card {
+                padding: 1.25rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+        }
+
+        /* Subtle Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .rooms-header {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .create-room {
+            animation: fadeIn 0.3s ease-out;
+            animation-delay: 0.1s;
+            animation-fill-mode: both;
+        }
+
+        .room-card {
+            animation: fadeIn 0.3s ease-out;
+            animation-delay: calc(var(--animation-order) * 0.05s + 0.2s);
+            animation-fill-mode: both;
+        }
+
+        /* Focus States */
+        .btn-theme:focus, .btn-logout:focus, #createRoomBtn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Active States */
+        .btn-theme:active, .btn-logout:active, #createRoomBtn:active {
+            transform: scale(0.98);
+        }
+
+        /* Enhanced AI Room Styles */
+        .ai-room {
+            background: linear-gradient(to bottom right, var(--card-bg), var(--card-bg));
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-room::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            animation: gradientFlow 3s linear infinite;
+            background-size: 200% 100%;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+
+        .ai-badge {
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            margin-left: 0.5rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .ai-features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            background: rgba(124, 58, 237, 0.03);
+            border-radius: 8px;
+        }
+
+        .ai-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .ai-feature-item:hover {
+            background: rgba(124, 58, 237, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .ai-feature-item i {
+            color: #7c3aed;
+            font-size: 1rem;
+        }
+
+        .ai-description {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(124, 58, 237, 0.03);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .ai-room .join-room-btn {
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .ai-room .join-room-btn i {
+            animation: wave 2s infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .ai-room:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(124, 58, 237, 0.15);
+            border-color: rgba(124, 58, 237, 0.3);
+        }
+
+        /* Dark mode adjustments */
+        [data-theme="dark"] .ai-room {
+            background: linear-gradient(to bottom right, var(--card-bg), var(--card-bg));
+            border-color: rgba(124, 58, 237, 0.3);
+        }
+
+        [data-theme="dark"] .ai-features,
+        [data-theme="dark"] .ai-description {
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        [data-theme="dark"] .ai-feature-item:hover {
+            background: rgba(124, 58, 237, 0.15);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .ai-features {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .ai-feature-item {
+                font-size: 0.9rem;
+                padding: 0.75rem;
+            }
+
+            .ai-description {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="rooms-container">
+        <header class="rooms-header">
+            <div class="header-left">
+                <h1>Chat Rooms</h1>
+                <button id="themeToggle" class="btn-theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+            <div class="user-info">
+                <span id="username"></span>
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <div class="create-room">
+            <div class="input-group">
+                <input type="text" id="newRoomName" placeholder="Enter room name">
+                <input type="password" id="roomPassword" placeholder="Room password (optional)">
+            </div>
+            <button id="createRoomBtn">
+                <i class="fas fa-plus"></i> Create Room
+            </button>
+        </div>
+
+        <div class="rooms-list" id="roomsList">
+            <!-- Rooms will be added here dynamically -->
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/rooms.js"></script>
+</body>
+</html> 

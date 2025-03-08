@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Slider</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .slider {
+            position: relative;
+            width: 80%;
+            max-width: 600px;
+            overflow: hidden;
+            border-radius: 15px;
+            /* Rounded corners */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .slides {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+            width: 200%;
+            /* Adjust based on number of images */
+        }
+
+        .slide {
+            width: 100%;
+            /* Each slide takes full width */
+            flex-shrink: 0;
+            /* Prevent shrinking */
+        }
+
+        img {
+            width: 100%;
+            /* Make images responsive */
+            border-radius: 15px;
+            /* Rounded corners for images */
+        }
+
+        /* Navigation buttons */
+        .prev,
+        .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .prev {
+            left: 10px;
+        }
+
+        .next {
+            right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="slider">
+        <div class="slides">
+            <div class="slide">
+                <img src="https://drive.google.com/uc?export=view&id=19XOgWummnSa_RuLzyUBww3bZHMZ2tkq-/preview"
+                    alt="Image 1">
+            </div>
+            <div class="slide">
+                <img src="https://drive.google.com/uc?export=view&id=1M0GbA2BbfniE9aWO1Pk9LnD8gz9YNZcN/preview"
+                    alt="Image 2">
+            </div>
+        </div>
+        <button class="prev" onclick="changeSlide(-1)">&#10094;</button>
+        <button class="next" onclick="changeSlide(1)">&#10095;</button>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+
+        function showSlide(index) {
+            const slides = document.querySelector('.slides');
+            const totalSlides = document.querySelectorAll('.slide').length;
+            if (index >= totalSlides) {
+                currentIndex = 0;
+            } else if (index < 0) {
+                currentIndex = totalSlides - 1;
+            } else {
+                currentIndex = index;
+            }
+            slides.style.transform = 'translateX(' + (-currentIndex * 100) + '%)';
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentIndex + direction);
+        }
+
+        // Automatic slide change every 3 seconds
+        setInterval(() => {
+            changeSlide(1);
+        }, 3000);
+
+        // Initially show the first slide
+        showSlide(currentIndex);
+    </script>
+</body>
+
+</html>

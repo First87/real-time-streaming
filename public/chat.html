@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="/css/chat.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-sidebar">
+            <div class="room-info">
+                <div class="room-header">
+                    <h2 id="roomName">Room Name</h2>
+                    <button id="themeToggle" class="btn-theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+                <button id="leaveRoomBtn" class="btn-leave">
+                    <i class="fas fa-arrow-left"></i> Back to Rooms
+                </button>
+            </div>
+            <div class="users-list">
+                <h3>Online Users</h3>
+                <ul id="usersList">
+                    <!-- Users will be added here dynamically -->
+                </ul>
+            </div>
+        </div>
+
+        <div class="chat-main">
+            <div class="messages-container" id="messages">
+                <!-- Messages will be added here dynamically -->
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator"></div>
+
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <label for="fileUpload" class="upload-btn" title="Upload file">
+                        <i class="fas fa-paperclip"></i>
+                    </label>
+                    <input type="file" id="fileUpload" accept=".pdf,.doc,.docx" style="display: none;">
+
+                    <button type="button" class="emoji-btn" id="emojiButton" title="Insert emoji">
+                        <i class="far fa-smile"></i>
+                    </button>
+                    <div id="emojiPicker" class="emoji-picker" style="display: none;">
+                        <!-- Emojis will be loaded here -->
+                    </div>
+
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Search messages..." class="search-input">
+                        <button id="searchButton" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+
+                    <input type="text" id="messageInput" placeholder="Type a message...">
+                    <button id="sendButton">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+
+                <div id="filePreview" class="file-preview" style="display: none;">
+                    <div class="file-info">
+                        <i class="fas fa-file"></i>
+                        <span id="fileName"></span>
+                    </div>
+                    <button id="cancelFile" class="cancel-upload">×</button>
+                </div>
+
+                <div id="replyPreview" class="reply-preview" style="display: none;">
+                    <div class="reply-content">
+                        <span id="replyUsername"></span>
+                        <p id="replyText"></p>
+                    </div>
+                    <button id="cancelReply" class="cancel-reply">×</button>
+                </div>
+            </div>
+
+            <!-- Message context menu -->
+            <div id="messageContextMenu" class="context-menu" style="display: none;">
+                <ul>
+                    <li id="replyOption"><i class="fas fa-reply"></i> Reply</li>
+                    <li id="editOption"><i class="fas fa-edit"></i> Edit</li>
+                    <li id="deleteOption"><i class="fas fa-trash"></i> Delete</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div id="modalCaption"></div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/chat.js"></script>
+</body>
+</html> 
